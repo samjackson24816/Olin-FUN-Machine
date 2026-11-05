@@ -1,0 +1,16 @@
+name: fun-machine
+
+services:
+  sim:
+    profiles: ["sim"]
+    build: .
+    volumes:
+      - ../src:/ws/src
+      - fun_build:/ws/build
+      - fun_install:/ws/install
+      - fun_log:/ws/log
+
+volumes:
+  fun_build:
+  fun_install:
+  fun_log:
