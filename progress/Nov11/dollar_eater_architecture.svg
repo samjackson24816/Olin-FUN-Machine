@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="1050" viewBox="0 0 860 1050">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#333"/>
+    </marker>
+    <style>
+      .container { fill: #F2F2F2; stroke: #6B6B6B; stroke-width: 1.2; }
+      .box       { stroke: #333; stroke-width: 1.2; }
+      .pink      { fill: #F7DADA; }
+      .yellow    { fill: #F4F1C9; }
+      .orange    { fill: #F8DEC2; }
+      .blue      { fill: #D3E7F3; }
+      .purple    { fill: #DED8EE; }
+      .green     { fill: #D5EBD1; }
+      .line      { stroke: #333; stroke-width: 1.3; fill: none; }
+      .t    { font: 13px Helvetica, Arial, sans-serif; fill: #222; text-anchor: middle; }
+      .d    { font: 10.5px Menlo, Consolas, monospace; fill: #555; text-anchor: middle; }
+      .io   { font: 14px Helvetica, Arial, sans-serif; fill: #222; text-anchor: middle; }
+      .side { font: italic 13px Helvetica, Arial, sans-serif; fill: #333; }
+      .sub  { font: 10.5px Menlo, Consolas, monospace; fill: #666; }
+      .note { font: italic 11px Helvetica, Arial, sans-serif; fill: #555; }
+      .cap  { font: 13px Helvetica, Arial, sans-serif; fill: #333; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <rect width="860" height="1050" fill="#FFFFFF"/>
+
+  <g transform="translate(20,0)">
+
+    <!-- Containers first, so every arrow is drawn on top of them -->
+    <rect class="container" x="120" y="740" width="240" height="150" rx="10"/>
+    <rect class="container" x="120" y="520" width="240" height="180" rx="10"/>
+    <rect class="container" x="480" y="388" width="240" height="212" rx="10"/>
+    <rect class="container" x="480" y="136" width="240" height="212" rx="10"/>
+
+    <!-- ===================== LEFT PATH: sensing (bottom to top) ===================== -->
+
+    <text class="io" x="240" y="990">Bill inserted</text>
+    <line class="line" x1="240" y1="972" x2="240" y2="951" marker-end="url(#arrow)"/>
+
+    <rect class="box pink" x="140" y="910" width="200" height="40" rx="6"/>
+    <text class="t" x="240" y="927">Bill Switch</text>
+    <text class="d" x="240" y="942">pin D2</text>
+
+    <!-- Arduino (left) -->
+    <text class="side" x="108" y="812" text-anchor="end">Arduino</text>
+    <text class="sub" x="108" y="828" text-anchor="end">Uno R3</text>
+
+    <line class="line" x1="240" y1="910" x2="240" y2="871" marker-end="url(#arrow)"/>
+    <rect class="box yellow" x="140" y="830" width="200" height="40" rx="6"/>
+    <text class="t" x="240" y="847">Debounce</text>
+    <text class="d" x="240" y="862">updateSwitch() · 20 ms</text>
+
+    <line class="line" x1="240" y1="830" x2="240" y2="801" marker-end="url(#arrow)"/>
+    <rect class="box orange" x="140" y="760" width="200" height="40" rx="6"/>
+    <text class="t" x="240" y="777">Serial Out</text>
+    <text class="d" x="240" y="792">"SWITCH 1"</text>
+
+    <!-- USB link -->
+    <line class="line" x1="240" y1="760" x2="240" y2="686"/>
+    <text class="note" x="252" y="724">USB serial</text>
+
+    <!-- Raspberry Pi (left) -->
+    <text class="side" x="108" y="606" text-anchor="end">Raspberry Pi</text>
+    <text class="sub" x="108" y="622" text-anchor="end">ROS 2</text>
+
+    <!-- SIM input joins here -->
+    <circle cx="240" cy="678" r="8" fill="#FFFFFF" stroke="#333" stroke-width="1.2"/>
+    <path class="line" d="M233,678 H247 M240,671 V685"/>
+    <line class="line" x1="372" y1="678" x2="249" y2="678" marker-end="url(#arrow)"/>
+    <text class="note" x="378" y="674">SIM mode</text>
+    <text class="sub" x="378" y="689">sim_switch</text>
+
+    <line class="line" x1="240" y1="670" x2="240" y2="651" marker-end="url(#arrow)"/>
+    <rect class="box blue" x="140" y="610" width="200" height="40" rx="6"/>
+    <text class="t" x="240" y="627">Parse Line</text>
+    <text class="d" x="240" y="642">handle_line()</text>
+
+    <line class="line" x1="240" y1="610" x2="240" y2="581" marker-end="url(#arrow)"/>
+    <rect class="box yellow" x="140" y="540" width="200" height="40" rx="6"/>
+    <text class="t" x="240" y="557">Publish</text>
+    <text class="d" x="240" y="572">ButtonEvent</text>
+
+    <!-- ===================== CROSS LINK: topic into the brain ===================== -->
+    <line class="line" x1="340" y1="560" x2="499" y2="560" marker-end="url(#arrow)"/>
+    <text class="sub" x="420" y="552" text-anchor="middle">bill_switch</text>
+
+    <!-- ===================== RIGHT PATH: acting (bottom to top) ===================== -->
+
+    <!-- Raspberry Pi (right) -->
+    <text class="side" x="732" y="490">Raspberry Pi</text>
+    <text class="sub" x="732" y="506">ROS 2</text>
+
+    <text class="io" x="600" y="652">Launch params</text>
+    <text class="d" x="600" y="667">eat_speed · eat_ms</text>
+    <line class="line" x1="600" y1="636" x2="600" y2="581" marker-end="url(#arrow)"/>
+
+    <rect class="box orange" x="500" y="540" width="200" height="40" rx="6"/>
+    <text class="t" x="600" y="557">Decision Maker</text>
+    <text class="d" x="600" y="572">bill in → eat</text>
+
+    <line class="line" x1="600" y1="540" x2="600" y2="515" marker-end="url(#arrow)"/>
+    <rect class="box yellow" x="500" y="474" width="200" height="40" rx="6"/>
+    <text class="t" x="600" y="491">Publish</text>
+    <text class="d" x="600" y="506">MotorCommand</text>
+
+    <line class="line" x1="600" y1="474" x2="600" y2="449" marker-end="url(#arrow)"/>
+    <rect class="box blue" x="500" y="408" width="200" height="40" rx="6"/>
+    <text class="t" x="600" y="425">Send Command</text>
+    <text class="d" x="600" y="440">send() · "RUN 255 3000"</text>
+
+    <!-- USB link -->
+    <line class="line" x1="600" y1="408" x2="600" y2="329" marker-end="url(#arrow)"/>
+    <text class="note" x="588" y="372" text-anchor="end">USB serial</text>
+
+    <!-- Arduino (right) -->
+    <text class="side" x="732" y="238">Arduino</text>
+    <text class="sub" x="732" y="254">Uno R3</text>
+
+    <rect class="box orange" x="500" y="288" width="200" height="40" rx="6"/>
+    <text class="t" x="600" y="305">Parse Command</text>
+    <text class="d" x="600" y="320">handleCommand()</text>
+
+    <line class="line" x1="600" y1="288" x2="600" y2="263" marker-end="url(#arrow)"/>
+    <rect class="box blue" x="500" y="222" width="200" height="40" rx="6"/>
+    <text class="t" x="600" y="239">Timed Run</text>
+    <text class="d" x="600" y="254">runMotor() · max 10 s</text>
+
+    <line class="line" x1="600" y1="222" x2="600" y2="197" marker-end="url(#arrow)"/>
+    <rect class="box purple" x="500" y="156" width="200" height="40" rx="6"/>
+    <text class="t" x="600" y="173">Motor Driver</text>
+    <text class="d" x="600" y="188">DRV8871 · PWM</text>
+
+    <line class="line" x1="600" y1="156" x2="600" y2="111" marker-end="url(#arrow)"/>
+    <rect class="box green" x="500" y="70" width="200" height="40" rx="6"/>
+    <text class="t" x="600" y="87">DC Motor</text>
+    <text class="d" x="600" y="102">pulls the bill in</text>
+
+    <line class="line" x1="600" y1="70" x2="600" y2="51" marker-end="url(#arrow)"/>
+    <text class="io" x="600" y="40">Bill eaten</text>
+
+    <!-- Caption -->
+    <text class="cap" x="420" y="1032">Figure 1: The Dollar Eater. The switch event rises on the left; the motor command rises on the right.</text>
+  </g>
+</svg>
