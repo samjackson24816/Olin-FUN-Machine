@@ -1,0 +1,22 @@
+# Play one clip: a voice line and its matching video, both found by
+# the same clip_id. Sound effects use this action too.
+#
+# Rules (both the brain and the player follow these):
+#  - If a new goal arrives while one is playing, the old one is
+#    aborted and the new one plays right away.
+#  - When canceled, stop as soon as possible -> STATUS_CANCELED.
+#  - If the clip file is missing -> STATUS_FAILED. The brain should
+#    skip the line and keep going, not get stuck.
+
+# ---- Goal: what the brain asks for ----
+string clip_id      # e.g. "dollar_ask_01", mapped to files in a YAML config
+bool loop           # true = repeat until canceled (idle animations)
+---
+# ---- Result: sent once, when the clip ends ----
+uint8 STATUS_COMPLETED=0
+uint8 STATUS_CANCELED=1
+uint8 STATUS_FAILED=2
+uint8 status
+---
+# ---- Feedback: sent repeatedly while playing ----
+float32 elapsed_sec
