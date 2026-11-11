@@ -1,9 +1,23 @@
 name: fun-machine
 
 services:
+  # Mac / any computer: everything simulated, no hardware needed
   sim:
     profiles: ["sim"]
     build: .
+    volumes:
+      - ../src:/ws/src
+      - fun_build:/ws/build
+      - fun_install:/ws/install
+      - fun_log:/ws/log
+
+  # Raspberry Pi: same as sim, plus access to the Arduino's USB serial port.
+  # Plug the Arduino in BEFORE starting this, or Docker will refuse to start.
+  hw:
+    profiles: ["hw"]
+    build: .
+    devices:
+      - /dev/ttyACM0:/dev/ttyACM0
     volumes:
       - ../src:/ws/src
       - fun_build:/ws/build

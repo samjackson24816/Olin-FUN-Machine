@@ -1,0 +1,24 @@
+<!--
+  Dollar Eater: insert a bill -> the motor eats it.
+
+  Simulation (no Arduino, e.g. on the Mac):
+    ros2 launch fun_bringup dollar_eater.launch.xml
+  Real hardware (Arduino plugged into the Pi):
+    ros2 launch fun_bringup dollar_eater.launch.xml use_sim:=false
+-->
+<launch>
+  <arg name="use_sim" default="true" description="true = no Arduino, fake the switch with a topic"/>
+  <arg name="port" default="/dev/ttyACM0" description="Arduino serial port"/>
+  <arg name="eat_speed" default="255" description="motor speed -255..255 (negative = other direction)"/>
+  <arg name="eat_ms" default="3000" description="how long the motor runs, in milliseconds"/>
+
+  <node pkg="fun_hardware" exec="dollar_eater_node" name="dollar_eater" output="screen">
+    <param name="use_sim" value="$(var use_sim)"/>
+    <param name="port" value="$(var port)"/>
+  </node>
+
+  <node pkg="fun_core" exec="decision_maker" name="decision_maker" output="screen">
+    <param name="eat_speed" value="$(var eat_speed)"/>
+    <param name="eat_ms" value="$(var eat_ms)"/>
+  </node>
+</launch>

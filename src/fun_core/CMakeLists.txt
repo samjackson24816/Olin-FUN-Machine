@@ -9,11 +9,12 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(fun_interfaces REQUIRED)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(decision_maker src/decision_maker.cpp)
-target_link_libraries(decision_maker PRIVATE rclcpp::rclcpp std_msgs::std_msgs)
+target_link_libraries(decision_maker PRIVATE rclcpp::rclcpp std_msgs::std_msgs ${fun_interfaces_TARGETS})
 install(TARGETS decision_maker DESTINATION lib/${PROJECT_NAME})
 
 
