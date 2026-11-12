@@ -2,3 +2,6 @@ build/
 install/
 log/
 .DS_Store
+.pixi/
+code
+vscode_cli.tar.gz
