@@ -8,9 +8,13 @@ find_package(builtin_interfaces REQUIRED)
 # Turn each definition file into C++ (and Python) code.
 # Every new .msg / .action file must be added to this list.
 rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/AnalogReading.msg"
   "msg/ButtonEvent.msg"
+  "msg/LedCommand.msg"
   "msg/MatrixCommand.msg"
   "msg/MotorCommand.msg"
+  "msg/SoundLoop.msg"
+  "msg/StripCommand.msg"
   "action/PlayClip.action"
   DEPENDENCIES builtin_interfaces
 )
