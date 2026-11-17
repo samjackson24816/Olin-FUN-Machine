@@ -1,0 +1,42 @@
+<!--
+  Scenes from docs/Script.md (Intro and Sliders so far): teensy_node + clip_player + brain.
+
+  Simulation (no Teensy, e.g. on the Mac):
+    ros2 launch fun_bringup scenes.launch.xml
+    ros2 launch fun_bringup scenes.launch.xml start_scene:=sliders
+  Real hardware (Teensy plugged into the Pi):
+    ros2 launch fun_bringup scenes.launch.xml use_sim:=false
+
+  In simulation, fake what the Teensy would send with:
+    ros2 topic pub -1 /teensy/sim_line std_msgs/msg/String "{data: 'PROX 0 200'}"
+-->
+<launch>
+  <arg name="use_sim" default="true" description="true = no Teensy, fake its lines on /teensy/sim_line"/>
+  <arg name="port" default="/dev/ttyACM0" description="Teensy serial port"/>
+  <arg name="start_scene" default="intro" description="first scene: intro or sliders"/>
+  <arg name="sim_clip_sec" default="2.0" description="how long each simulated clip plays"/>
+
+  <node pkg="fun_hardware" exec="teensy_node" name="teensy" output="screen">
+    <param name="use_sim" value="$(var use_sim)"/>
+    <param name="port" value="$(var port)"/>
+    <param name="num_buttons" value="4"/>
+    <param name="num_sliders" value="3"/>
+    <param name="num_prox" value="1"/>
+    <param name="num_leds" value="4"/>
+  </node>
+
+  <!-- Only a simulated player exists so far: it logs the clips instead of playing them. -->
+  <node pkg="fun_hardware" exec="clip_player_node" name="clip_player" output="screen">
+    <param name="sim_clip_sec" value="$(var sim_clip_sec)"/>
+  </node>
+
+  <node pkg="fun_core" exec="brain" name="brain" output="screen">
+    <param name="start_scene" value="$(var start_scene)"/>
+    <param name="num_buttons" value="4"/>
+    <param name="num_sliders" value="3"/>
+    <param name="num_prox" value="1"/>
+    <param name="num_leds" value="4"/>
+    <param name="big_red_led" value="0"/>
+    <param name="prox_sensor" value="0"/>
+  </node>
+</launch>
