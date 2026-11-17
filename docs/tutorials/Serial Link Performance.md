@@ -77,4 +77,4 @@ When binary would matter: streaming raw per-pixel strip frames or high-rate anal
 - PJRC `Wire` (I2C): https://www.pjrc.com/teensy/td_libs_Wire.html
 - Jack Ganssle, A Guide to Debouncing: http://www.ganssle.com/debouncing.htm
 - hzeller/rpi-rgb-led-matrix (CPU and core isolation notes): https://github.com/hzeller/rpi-rgb-led-matrix
-- Project plan: `src/Software.md` (success metrics, soak test)
+- Project plan: `docs/Software Plan.md` (success metrics, soak test)

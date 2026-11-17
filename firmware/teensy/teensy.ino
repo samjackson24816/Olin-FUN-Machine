@@ -1,4 +1,4 @@
-// Teensy 4.1 firmware. Protocol: /pi-teensy-protocol.md (version 2).
+// Teensy 4.1 firmware. Protocol: docs/pi-teensy-protocol.md (version 2).
 // The Teensy only reports inputs and drives outputs. It never decides; the Pi does.
 #include <Adafruit_NeoPixel.h>
 #include "pins.h"

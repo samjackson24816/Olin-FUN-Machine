@@ -1,6 +1,6 @@
 // Hardware test for the intermediate build: Teensy 4.1.
-// Wiring: see ../teensy41_intermediate_build_wiring.png
-// Protocol: follows /pi-teensy-protocol.md (Sam's Pi/Teensy serial protocol, version 1).
+// Wiring: see docs/diagrams/teensy41_intermediate_build_wiring.png
+// Protocol: follows docs/pi-teensy-protocol.md (Sam's Pi/Teensy serial protocol).
 //
 // USB serial, one ASCII line per message, ending in \n. Max 63 characters.
 // Type commands in the Arduino Serial Monitor (line ending "Newline") or from the Pi.

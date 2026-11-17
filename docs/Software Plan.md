@@ -10,7 +10,7 @@ This is version 2 of the plan and replaces the earlier one. fun-machine's softwa
 
 fun-machine is an interactive prank machine controlled by one Raspberry Pi 4 (8 GB): a big lever, a lever that falls off, a red power button, a multi-function button with an RGB light, speakers for voice lines, and a display. A decision maker (the "brain") reacts to what people do and drives the outputs.
 
-**The original plan (Oct 30, in the repo).** The team's first decisions live in [`Project Decisions.md`](https://github.com/samjackson24816/Olin-FUN-Machine/blob/main/Docs%20and%20Learning/Project%20Decisions.md), the [README](https://github.com/samjackson24816/Olin-FUN-Machine/blob/main/README.md) and two tutorial documents, [Project Setup Guide](https://github.com/samjackson24816/Olin-FUN-Machine/blob/main/Docs%20and%20Learning/Tutorial%20Documents/Project%20Setup%20Guide.md) and [Setup Workflow](https://github.com/samjackson24816/Olin-FUN-Machine/blob/main/Docs%20and%20Learning/Tutorial%20Documents/Setup%20Workflow.md):
+**The original plan (Oct 30, in the repo).** The team's first decisions live in [`Project Decisions.md`](Project%20Decisions.md), the [README](../README.md) and two tutorial documents, [Project Setup Guide](tutorials/Project%20Setup%20Guide.md) and [Setup Workflow](tutorials/Setup%20Workflow.md):
 
 - **Hardware:** Raspberry Pi 4B with 8 GB of RAM.
 - **Framework:** ROS 2 Lyrical in a Docker container on both the Macs and the Pi; both are arm64, so one image runs on both.
@@ -243,7 +243,7 @@ Two repos. The machine's repo, [`Olin-FUN-Machine`](https://github.com/samjackso
 | `assets/` | Voice lines, images, scenario YAML | Unchanged | assets |
 | `config/`, `deploy/`, `docker/` | `pins.yaml`, topic names, CMake presets, Mac dev container, one systemd unit | Launch YAML, one unit per process | 150–350 |
 | `tests/` | Contract tests; scenario tests with sim nodes | Also run on Sinew in CI | 600–1,000 |
-| `Docs and Learning/` | Existing decisions, AI policy, tutorial documents | Unchanged | docs |
+| `docs/` | Existing decisions, AI policy, tutorial documents | Unchanged | docs |
 
 **`sinew` (new in phase 2, Go + C++)**
 
@@ -413,10 +413,10 @@ Phase 1 is judged by the machine working on Dec 10; phase 2 by numbers measured 
 
 ## Sources
 
-- [Olin-FUN-Machine README](https://github.com/samjackson24816/Olin-FUN-Machine/blob/main/README.md)
-- [Project Decisions](https://github.com/samjackson24816/Olin-FUN-Machine/blob/main/Docs%20and%20Learning/Project%20Decisions.md)
-- [Project Setup Guide](https://github.com/samjackson24816/Olin-FUN-Machine/blob/main/Docs%20and%20Learning/Tutorial%20Documents/Project%20Setup%20Guide.md)
-- [Setup Workflow](https://github.com/samjackson24816/Olin-FUN-Machine/blob/main/Docs%20and%20Learning/Tutorial%20Documents/Setup%20Workflow.md)
+- [Olin-FUN-Machine README](../README.md)
+- [Project Decisions](Project%20Decisions.md)
+- [Project Setup Guide](tutorials/Project%20Setup%20Guide.md)
+- [Setup Workflow](tutorials/Setup%20Workflow.md)
 - [AI Policy](https://github.com/samjackson24816/Olin-FUN-Machine/blob/main/Docs%20and%20Learning/AI%20Policy.md)
 - [Project Guidelines for AI](https://github.com/samjackson24816/Olin-FUN-Machine/blob/main/Docs%20and%20Learning/Project%20Guidelines%20for%20AI.md)
 - [nano-Json-RPC](https://github.com/lvy010/nano-Json-RPC)

@@ -1,7 +1,7 @@
 #pragma once
 #include <Arduino.h>
 
-// The index into each array is the device ID on the wire (see pi-teensy-protocol.md).
+// The index into each array is the device ID on the wire (see docs/pi-teensy-protocol.md).
 // Reordering an array changes the wire IDs. Add new devices at the end.
 
 // Btn 1..4 in the schematic -> IDs 0..3 on the wire
