@@ -12,6 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(rclcpp_action REQUIRED)
 find_package(fun_interfaces REQUIRED)
 
 # Dollar Eater: bridge between ROS and the Dollar Eater Arduino
@@ -26,6 +27,28 @@ target_link_libraries(dollar_eater_node PRIVATE
   ${fun_interfaces_TARGETS}
 )
 install(TARGETS dollar_eater_node DESTINATION lib/${PROJECT_NAME})
+
+# Teensy: bridge between ROS and the Teensy 4.1 (buttons, sliders, proximity, LEDs, strip)
+add_executable(teensy_node
+  src/teensy_node.cpp
+  src/serial_port.cpp
+)
+target_include_directories(teensy_node PRIVATE include)
+target_link_libraries(teensy_node PRIVATE
+  rclcpp::rclcpp
+  ${std_msgs_TARGETS}
+  ${fun_interfaces_TARGETS}
+)
+install(TARGETS teensy_node DESTINATION lib/${PROJECT_NAME})
+
+# Clip player: plays voice lines / videos / sounds (SIM backend only for now)
+add_executable(clip_player_node src/clip_player_node.cpp)
+target_link_libraries(clip_player_node PRIVATE
+  rclcpp::rclcpp
+  rclcpp_action::rclcpp_action
+  ${fun_interfaces_TARGETS}
+)
+install(TARGETS clip_player_node DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
