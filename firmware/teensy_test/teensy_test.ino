@@ -1,5 +1,6 @@
 // Hardware test for the intermediate build: Teensy 4.1.
 // Wiring: see docs/diagrams/teensy41_intermediate_build_wiring.png
+//         sliders: docs/diagrams/Teensy_Final_Wiring_Visual.png
 // Protocol: follows docs/pi-teensy-protocol.md (Sam's Pi/Teensy serial protocol).
 //
 // USB serial, one ASCII line per message, ending in \n. Max 63 characters.
@@ -8,6 +9,7 @@
 //
 // Device IDs (0-based, the index into the pin arrays below):
 //   BTN   0-3   buttons Btn 1-4 on pins 2-5
+//   SLIDER 0-2  sliders 1-3 on A0, A1, A2 (pins 14, 15, 16); ends to 3.3V and GND
 //   MOTOR 0     DC motor on the DRV8871 (pins 6, 7)
 //   ACT   0     linear actuator on the BTS7960 (pins 8, 9)
 //   LED   0-3   RGB button LEDs on the TLC5947 (OUT0-11, 3 channels each)
@@ -16,6 +18,7 @@
 // Teensy -> Pi:
 //   READY 1                  booted, every output in its safe state
 //   BTN <id> <0|1>           button released / pressed (debounced, only on change)
+//   SLIDER <id> <v>          slider position 0..1023 (when it moves more than 8, at most every 20 ms)
 //   PONG                     reply to PING
 //   OK <command>             command accepted (the command is echoed back)
 //   DONE <kind> <id>         a timed run finished, e.g. DONE MOTOR 0
@@ -23,7 +26,7 @@
 //
 // Pi -> Teensy:
 //   PING                     Teensy replies PONG
-//   SNAPSHOT                 Teensy sends BTN <id> <v> for every button
+//   SNAPSHOT                 Teensy sends BTN <id> <v> for every button, then SLIDER <id> <v>
 //   MOTOR <id> <speed> <ms>  speed -255..255 (negative = other direction), ms capped at 10000
 //   ACT <id> <speed> <ms>    same, for the linear actuator
 //   LED <id> <r> <g> <b>     button LED colour, 0-255 each
@@ -31,6 +34,10 @@
 //   STRIP WAVE               effect: blue strip with a red/purple wave running along it
 //   STOP                     everything to a safe state now
 //   TEST                     test-only: run every device once, then DONE TEST 0
+//                            (send any line to abort: ERR aborted)
+//   SLIDERTEST               test-only: move every slider to both ends within 30 s.
+//                            Prints PASS SLIDER <id> as each one is done, then a
+//                            RESULT line per slider and SLIDERTEST PASS / SLIDERTEST FAIL
 //                            (send any line to abort: ERR aborted)
 
 #include <Adafruit_NeoPixel.h>
@@ -46,6 +53,9 @@ const uint8_t TLC_DIN = 11;
 const uint8_t TLC_CLK = 13;
 const uint8_t TLC_LAT = 10;
 const uint8_t STRIP_PIN = 33;
+// Slider 1..3 -> IDs 0..2. Wiper to the pin, ends to 3.3V and GND (never 5V).
+const uint8_t SLIDER_PINS[] = {A0, A1, A2};  // pins 14, 15, 16
+const uint8_t NUM_SLIDERS = sizeof(SLIDER_PINS) / sizeof(SLIDER_PINS[0]);
 
 // TLC5947 channels for each button LED, in R, G, B order.
 // If a colour comes out wrong, swap the numbers here to match the wiring.
@@ -66,6 +76,11 @@ const int TLC_CHANNELS = 24;                // one TLC5947 has 24 outputs
 const unsigned long MAX_RUN_MS = 10000;     // safety: no motor/actuator run lasts longer than this
 const unsigned long BTN_DEBOUNCE_MS = 20;
 const uint8_t MAX_LINE = 63;                // longer lines are discarded with ERR toolong
+const int SLIDER_DEADBAND = 8;              // out of 0..1023, same as firmware/teensy
+const unsigned long SLIDER_INTERVAL_MS = 20;
+const unsigned long SLIDER_TEST_MS = 30000; // SLIDERTEST time limit
+const int SLIDER_LOW_OK = 30;               // at the GND end a slider must read at most this
+const int SLIDER_HIGH_OK = 993;             // at the 3.3V end at least this
 
 // ---------- Motors (MOTOR 0 and ACT 0) ----------
 
@@ -244,6 +259,85 @@ void updateButtons() {
   }
 }
 
+// ---------- Sliders ----------
+
+struct Slider {
+  float filtered;      // low-pass filtered reading
+  int sent;            // last value reported
+  uint32_t sentMs;     // when it was reported
+};
+Slider sliders[NUM_SLIDERS];
+
+int sliderValue(uint8_t id) {
+  return (int)(sliders[id].filtered + 0.5f);
+}
+
+void sendSlider(uint8_t id) {
+  sliders[id].sent = sliderValue(id);
+  sliders[id].sentMs = millis();
+  Serial.printf("SLIDER %d %d\n", id, sliders[id].sent);
+}
+
+// Smooth each reading, then report it if it moved past the deadband
+// and the last report is old enough.
+void updateSliders() {
+  for (uint8_t i = 0; i < NUM_SLIDERS; i++) {
+    int raw = analogRead(SLIDER_PINS[i]);
+    sliders[i].filtered += (raw - sliders[i].filtered) * 0.25f;  // simple low-pass filter
+    if (abs(sliderValue(i) - sliders[i].sent) > SLIDER_DEADBAND &&
+        millis() - sliders[i].sentMs >= SLIDER_INTERVAL_MS) {
+      sendSlider(i);
+    }
+  }
+}
+
+void initSliders() {
+  for (uint8_t i = 0; i < NUM_SLIDERS; i++) {
+    sliders[i].filtered = analogRead(SLIDER_PINS[i]);
+    sliders[i].sent = sliderValue(i);
+    sliders[i].sentMs = millis();
+  }
+}
+
+// Slider test: each slider must reach both ends (<= SLIDER_LOW_OK and >= SLIDER_HIGH_OK).
+// The usual SLIDER lines keep coming, so you can also see which ID moves when you move
+// a slider (catches two sliders swapped). Returns 1 = all passed, 0 = some failed, -1 = aborted.
+int runSliderTest() {
+  int lo[NUM_SLIDERS];
+  int hi[NUM_SLIDERS];
+  bool passed[NUM_SLIDERS];
+  for (uint8_t i = 0; i < NUM_SLIDERS; i++) {
+    lo[i] = hi[i] = sliderValue(i);
+    passed[i] = false;
+  }
+  Serial.println("INFO move each slider all the way to both ends");
+
+  unsigned long start = millis();
+  uint8_t numPassed = 0;
+  while (numPassed < NUM_SLIDERS && millis() - start < SLIDER_TEST_MS) {
+    updateSliders();
+    for (uint8_t i = 0; i < NUM_SLIDERS; i++) {
+      int v = sliderValue(i);
+      lo[i] = min(lo[i], v);
+      hi[i] = max(hi[i], v);
+      if (!passed[i] && lo[i] <= SLIDER_LOW_OK && hi[i] >= SLIDER_HIGH_OK) {
+        passed[i] = true;
+        numPassed++;
+        Serial.printf("PASS SLIDER %d\n", i);
+      }
+    }
+    if (Serial.available() > 0) {
+      while (Serial.available() > 0) Serial.read();
+      return -1;
+    }
+  }
+
+  for (uint8_t i = 0; i < NUM_SLIDERS; i++) {
+    Serial.printf("RESULT SLIDER %d %s min %d max %d\n", i, passed[i] ? "PASS" : "FAIL", lo[i], hi[i]);
+  }
+  return numPassed == NUM_SLIDERS ? 1 : 0;
+}
+
 // ---------- Safe state and test ----------
 
 void allSafe() {
@@ -258,6 +352,7 @@ bool waitMs(unsigned long ms) {
   unsigned long start = millis();
   while (millis() - start < ms) {
     updateButtons();
+    updateSliders();
     updateMotor(motor);
     updateMotor(act);
     if (Serial.available() > 0) {
@@ -369,6 +464,9 @@ void handleLine(char *line) {
     for (uint8_t i = 0; i < NUM_BTNS; i++) {
       sendButton(i);
     }
+    for (uint8_t i = 0; i < NUM_SLIDERS; i++) {
+      sendSlider(i);
+    }
   } else if (strcmp(cmd, "MOTOR") == 0) {
     handleMotor(motor, tok, echo);
   } else if (strcmp(cmd, "ACT") == 0) {
@@ -418,6 +516,14 @@ void handleLine(char *line) {
     } else {
       allSafe();
       Serial.println("ERR aborted");
+    }
+  } else if (strcmp(cmd, "SLIDERTEST") == 0) {
+    Serial.println("OK SLIDERTEST");
+    int result = runSliderTest();
+    if (result < 0) {
+      Serial.println("ERR aborted");
+    } else {
+      Serial.println(result ? "SLIDERTEST PASS" : "SLIDERTEST FAIL");
     }
   } else {
     Serial.println("ERR unknown");
@@ -476,6 +582,7 @@ void setup() {
     bool pressed = (digitalRead(BTN_PINS[i]) == LOW);
     btns[i] = {pressed, pressed, millis()};
   }
+  initSliders();
 
   Serial.println("READY 1");
 }
@@ -483,6 +590,7 @@ void setup() {
 void loop() {
   updateSerial();
   updateButtons();
+  updateSliders();
   updateMotor(motor);
   updateMotor(act);
   updateStrip();

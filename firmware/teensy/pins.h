@@ -11,13 +11,16 @@ const uint16_t BTN_DEBOUNCE_MS = 20;
 
 // Sliders (linear potentiometers): wiper -> pin, ends -> 3.3V and GND.
 // Never connect a slider end to 5V: Teensy 4.1 pins are NOT 5V tolerant.
+// Wiring: docs/diagrams/Teensy_Final_Wiring_Visual.png (Slider 1..3 -> IDs 0..2).
 const uint8_t SLIDER_PINS[] = { A0, A1, A2 };  // pins 14, 15, 16
 const uint8_t NUM_SLIDERS   = sizeof(SLIDER_PINS) / sizeof(SLIDER_PINS[0]);
 
 // Proximity (analog distance) sensors, e.g. Sharp GP2Y0A02 / GP2Y0A21: output -> pin.
 // Bigger value = closer. The output must stay below 3.3V.
-const uint8_t PROX_PINS[] = { A3 };  // pin 17
-const uint8_t NUM_PROX    = sizeof(PROX_PINS) / sizeof(PROX_PINS[0]);
+// None in the final wiring: A3 (pin 17) is now the Start button. To add one, use a free
+// analog pin, e.g. { A14 } for pin 38, and set num_prox on the Pi's teensy_node to match.
+const uint8_t PROX_PINS[] = {};
+const uint8_t NUM_PROX    = 0;
 
 // Analog inputs are reported only when they move more than the deadband,
 // and at most once per interval, so the line stays quiet.

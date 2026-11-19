@@ -32,7 +32,7 @@ If the firmware and this file disagree, make sure to update
 | SLIDER | 0 | Slider 1 | A0 (14) |
 | SLIDER | 1 | Slider 2 | A1 (15) |
 | SLIDER | 2 | Slider 3 | A2 (16) |
-| PROX | 0 | Distance sensor | A3 (17) |
+| PROX | 0 | Distance sensor | not wired yet (A3 / pin 17 is now the Start button) |
 | LED | 0-3 | Button RGB LEDs | TLC5947 OUT0-11 (3 outputs each, R G B) |
 | STRIP | - | WS2812B strip | 33 |
 Reordering `BTN_PINS` changes the wire IDs. Add new devices at the end.
